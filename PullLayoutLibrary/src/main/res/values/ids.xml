@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--上拉和下拉的控件ID定义-->
+    <item type="id" name="refresh_view"/>
+    <item type="id" name="load_more_view"/>
+    <item type="id" name="refresh_image_arrow"/>
+    <item type="id" name="load_image_arrow"/>
+    <item type="id" name="refresh_image_loading"/>
+    <item type="id" name="load_image_loading"/>
+    <item type="id" name="refresh_image_state"/>
+    <item type="id" name="load_image_state"/>
+    <item type="id" name="refresh_text_state"/>
+    <item type="id" name="load_text_state"/>
+
+</resources>
