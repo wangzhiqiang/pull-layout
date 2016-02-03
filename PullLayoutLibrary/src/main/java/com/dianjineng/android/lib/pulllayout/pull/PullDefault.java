@@ -68,6 +68,10 @@ public class PullDefault implements PullLayout.PullStateListener {
     @Override
     public void initView(Context context) {
 
+        if(null == mRefreshView || null == mLoadMoreView){
+            return;
+        }
+
         mRotateAnimation = (RotateAnimation) AnimationUtils.loadAnimation(context, R.anim.reverse_anim);
         mRefreshingAnimation = (RotateAnimation) AnimationUtils.loadAnimation(context, R.anim.rotating);
         // 添加匀速转动动画

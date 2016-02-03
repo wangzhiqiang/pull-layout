@@ -6,29 +6,33 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import com.dianjineng.android.lib.pulllayout.handler.PullHandler;
 
+import java.lang.ref.WeakReference;
+
 /**
  * @author wzq <wangzhiqiang951753@gmail.com>
  *         Date : 15-12-23-12-23 13:45
  */
 public class PullRecyclerView implements PullHandler {
 
-    private RecyclerView mRecycleView;
+    private WeakReference<RecyclerView> mView;
 
     public PullRecyclerView(RecyclerView view) {
-        this.mRecycleView = view;
+        this.mView = new WeakReference<RecyclerView>(view);
     }
 
     @Override
     public boolean canPullDown() {
-        return getFirstVisiblePosition() == 0  && mRecycleView.getChildAt(0).getTop() >= 0;
+        // 判断条件 没有child 或 第一个已经显示了
+
+        return mView.get().getAdapter().getItemCount() == 0 || (getFirstVisiblePosition() == 0 && mView.get().getChildAt(0).getTop() >= 0);
     }
 
     @Override
     public boolean canPullUp() {
-        if (getLastVisiblePosition() == (mRecycleView.getAdapter().getItemCount() - 1)) {
+        if (getLastVisiblePosition() == (mView.get().getAdapter().getItemCount() - 1)) {
             // 滑到底部了
-            if (mRecycleView.getChildAt(getLastVisiblePosition() - getFirstVisiblePosition()) != null
-                    && mRecycleView.getChildAt( getLastVisiblePosition() - getFirstVisiblePosition()).getBottom() <= mRecycleView.getMeasuredHeight())
+            if (mView.get().getChildAt(getLastVisiblePosition() - getFirstVisiblePosition()) != null
+                    && mView.get().getChildAt(getLastVisiblePosition() - getFirstVisiblePosition()).getBottom() <= mView.get().getMeasuredHeight())
                 return true;
         }
         return false;
@@ -41,12 +45,12 @@ public class PullRecyclerView implements PullHandler {
      */
     private int getFirstVisiblePosition() {
         int position;
-        if (mRecycleView.getLayoutManager() instanceof LinearLayoutManager) {
-            position = ((LinearLayoutManager) mRecycleView.getLayoutManager()).findFirstVisibleItemPosition();
-        } else if (mRecycleView.getLayoutManager() instanceof GridLayoutManager) {
-            position = ((GridLayoutManager) mRecycleView.getLayoutManager()).findFirstVisibleItemPosition();
-        } else if (mRecycleView.getLayoutManager() instanceof StaggeredGridLayoutManager) {
-            StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) mRecycleView.getLayoutManager();
+        if (mView.get().getLayoutManager() instanceof LinearLayoutManager) {
+            position = ((LinearLayoutManager) mView.get().getLayoutManager()).findFirstVisibleItemPosition();
+        } else if (mView.get().getLayoutManager() instanceof GridLayoutManager) {
+            position = ((GridLayoutManager) mView.get().getLayoutManager()).findFirstVisibleItemPosition();
+        } else if (mView.get().getLayoutManager() instanceof StaggeredGridLayoutManager) {
+            StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) mView.get().getLayoutManager();
             int[] lastPositions = layoutManager.findFirstVisibleItemPositions(new int[layoutManager.getSpanCount()]);
             position = getMinPositions(lastPositions);
         } else {
@@ -77,16 +81,16 @@ public class PullRecyclerView implements PullHandler {
      */
     private int getLastVisiblePosition() {
         int position;
-        if (mRecycleView.getLayoutManager() instanceof LinearLayoutManager) {
-            position = ((LinearLayoutManager) mRecycleView.getLayoutManager()).findLastVisibleItemPosition();
-        } else if (mRecycleView.getLayoutManager() instanceof GridLayoutManager) {
-            position = ((GridLayoutManager) mRecycleView.getLayoutManager()).findLastVisibleItemPosition();
-        } else if (mRecycleView.getLayoutManager() instanceof StaggeredGridLayoutManager) {
-            StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) mRecycleView.getLayoutManager();
+        if (mView.get().getLayoutManager() instanceof LinearLayoutManager) {
+            position = ((LinearLayoutManager) mView.get().getLayoutManager()).findLastVisibleItemPosition();
+        } else if (mView.get().getLayoutManager() instanceof GridLayoutManager) {
+            position = ((GridLayoutManager) mView.get().getLayoutManager()).findLastVisibleItemPosition();
+        } else if (mView.get().getLayoutManager() instanceof StaggeredGridLayoutManager) {
+            StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) mView.get().getLayoutManager();
             int[] lastPositions = layoutManager.findLastVisibleItemPositions(new int[layoutManager.getSpanCount()]);
             position = getMaxPosition(lastPositions);
         } else {
-            position = mRecycleView.getLayoutManager().getItemCount() - 1;
+            position = mView.get().getLayoutManager().getItemCount() - 1;
         }
         return position;
     }

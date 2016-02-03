@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <com.dianjineng.android.lib.pulllayout.PullLayout
+            app:itemRefresh="@layout/refresh_head"
+            app:itemLoadMore="@layout/load_more"
+            app:dist="50dp"
+            android:id="@+id/pull_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <TextView
+                android:text="XX事实上"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        <android.support.v7.widget.RecyclerView
+                android:layout_marginTop="30dp"
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+        </android.support.v7.widget.RecyclerView>
+
+
+    </com.dianjineng.android.lib.pulllayout.PullLayout>
+
+
+
+</FrameLayout>

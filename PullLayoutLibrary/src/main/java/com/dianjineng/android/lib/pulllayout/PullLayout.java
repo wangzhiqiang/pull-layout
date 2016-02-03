@@ -1,17 +1,24 @@
 package com.dianjineng.android.lib.pulllayout;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.IntegerRes;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import com.dianjineng.android.lib.pulllayout.enums.FinishState;
 import com.dianjineng.android.lib.pulllayout.enums.PullState;
@@ -19,7 +26,7 @@ import com.dianjineng.android.lib.pulllayout.handler.PullHandler;
 import com.dianjineng.android.lib.pulllayout.handler.views.PullView;
 
 
-public class PullLayout extends RelativeLayout {
+public class PullLayout extends FrameLayout {
 
     public final String TAG = this.getClass().getSimpleName();
 
@@ -47,7 +54,7 @@ public class PullLayout extends RelativeLayout {
     // 手指滑动距离与下拉头的滑动距离比，中间会随正切函数变化
     private float radio = 2;
     // 中部的View 暂时只支持一个 如需多个View 可以自行加ViewGroup
-    private View mCenterView;
+    private FrameLayout mCenterView;
     // 过滤多点触碰
     private int mEvents;
     // 这两个变量用来控制pull的方向，如果不加控制，当情况满足可上拉又可下拉时没法下拉
@@ -55,13 +62,23 @@ public class PullLayout extends RelativeLayout {
     private boolean mCanPullUp = true;
 
     // 控制是否能执行刷新和加载的接口
-    private PullHandler mPullableListener = new PullView();
+    private PullHandler mPullHandler = new PullView();
     //实现了刷新和加载状态 view变化的接口
     private PullStateListener mPullableStateListener = new com.dianjineng.android.lib.pulllayout.pull.PullDefault();
     // 刷新回调接口
     private OnPullListener mListener;
 
     private Context mContext;
+
+    @IntegerRes
+    private int mItemRefresh;
+    @IntegerRes
+    private int mItemLoadMore;
+
+    private View mViewRefresh;
+    private View mViewLoadMore;
+
+
 
     /**
      * 执行自动回滚的handler
@@ -125,8 +142,8 @@ public class PullLayout extends RelativeLayout {
         this.mPullableStateListener = listener;
     }
 
-    public void setPullableListener(PullHandler listener) {
-        this.mPullableListener = listener;
+    public void setPullHandler(PullHandler listener) {
+        this.mPullHandler = listener;
     }
 
     public void setOnRefreshListener(OnPullListener listener) {
@@ -135,22 +152,41 @@ public class PullLayout extends RelativeLayout {
 
     public PullLayout(Context context) {
         super(context);
-        initView(context);
+        initView(context,null);
     }
 
     public PullLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initView(context);
+        initView(context,  attrs);
     }
 
     public PullLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        initView(context);
+        initView(context,  attrs);
     }
 
-    private void initView(Context context) {
+    private void initView(Context context,AttributeSet attrs) {
         mContext = context;
         timer = new MyTimer(updateHandler);
+        if(null != attrs) {
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PullLayout);
+            mItemRefresh = a.getResourceId(R.styleable.PullLayout_itemRefresh, -1);
+            mItemLoadMore = a.getResourceId(R.styleable.PullLayout_itemLoadMore, -1);
+            mRefreshDist = a.getDimensionPixelSize(R.styleable.PullLayout_dist,100);
+            mLoadMoreDist = mRefreshDist;
+            a.recycle();
+
+
+
+            if( -1 != mItemRefresh){
+                //noinspection ResourceType
+                mViewRefresh = View.inflate(mContext,mItemRefresh,null);
+            }
+            if(-1 != mItemLoadMore){
+                //noinspection ResourceType
+                mViewLoadMore = View.inflate(mContext,mItemLoadMore,null);
+            }
+        }
 
     }
 
@@ -260,7 +296,7 @@ public class PullLayout extends RelativeLayout {
             case MotionEvent.ACTION_MOVE:
                 if (mEvents == 0) {
                     if (pullDownY > 0
-                            || (mPullableListener.canPullDown()
+                            || (mPullHandler.canPullDown()
                             && mCanPullDown && mState != PullState.LOADING)) {
                         // 可以下拉，正在加载时不能下拉
                         // 对实际滑动距离做缩小，造成用力拉的感觉
@@ -277,7 +313,7 @@ public class PullLayout extends RelativeLayout {
                             isTouch = true;
                         }
                     } else if (pullUpY < 0
-                            || (mPullableListener.canPullUp() && mCanPullUp && mState != PullState.REFRESHING)) {
+                            || (mPullHandler.canPullUp() && mCanPullUp && mState != PullState.REFRESHING)) {
                         // 可以上拉，正在刷新时不能上拉
                         pullUpY = pullUpY + (ev.getY() - lastY) / radio;
                         if (pullUpY > 0) {
@@ -401,46 +437,72 @@ public class PullLayout extends RelativeLayout {
         new AutoRefreshAndLoadTask().execute(20);
     }
 
-    /**
-     * 自动加载
-     */
-    public void autoLoad() {
-        pullUpY = -mLoadMoreDist;
-        requestLayout();
-        changeState(PullState.LOADING);
-        // 加载操作
-        if (mListener != null)
-            mListener.onLoadMore(this);
-    }
+//    /**
+//     * 自动加载
+//     */
+//    public void autoLoad() {
+//        pullUpY = -mLoadMoreDist;
+//        requestLayout();
+//        changeState(PullState.LOADING);
+//        // 加载操作
+//        if (mListener != null)
+//            mListener.onLoadMore(this);
+//    }
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        Log.d("Test", "Test");
         if (isFirstLayout) {
+
+            isFirstLayout = false;
+
             // 这里是第一次进来的时候做一些初始化
 //            mRefreshView = getChildAt(0);//
+//            mViewLoadMore = getChildAt(2);
 
-            mPullableStateListener.setRefreshView(getChildAt(0));
-            mCenterView = getChildAt(1);
-            mPullableStateListener.setLoadView(getChildAt(2));
-//            mLoadMoreView = getChildAt(2);//
-            isFirstLayout = false;
+
+//            mCenterView = //getChildAt(1);
+
+            if(null == mCenterView){
+                mCenterView = new FrameLayout(mContext);
+                LayoutParams params = (LayoutParams) this.getLayoutParams();
+                params.width= ViewGroup.LayoutParams.MATCH_PARENT;
+                params.height= ViewGroup.LayoutParams.MATCH_PARENT;
+                mCenterView.setLayoutParams(params);
+            }
+
+            int child = getChildCount();
+            List<View> list  = new ArrayList<>();
+            for (int i=0;i<child;i++){
+                View childView = getChildAt(i);
+                list.add(childView);
+            }
+            for (View v:list) {
+                removeView(v);
+                mCenterView.addView(v);
+            }
+            addView(mCenterView);
+
+            addView(mViewRefresh,0);
+            addView(mViewLoadMore);
+
+            mPullableStateListener.setRefreshView(mViewRefresh);
+            mPullableStateListener.setLoadView(mViewLoadMore);
             mPullableStateListener.initView(mContext);
-
-            mRefreshDist = ((ViewGroup) mPullableStateListener.getRefreshView()).getChildAt(0).getMeasuredHeight();
-            mLoadMoreDist = ((ViewGroup) mPullableStateListener.getLoadView()).getChildAt(0).getMeasuredHeight();
+//
+//            mRefreshDist = mViewRefresh.getMeasuredHeight();
+//            mLoadMoreDist = mViewLoadMore.getMeasuredHeight();
         }
         // 改变子控件的布局，这里直接用(pullDownY + pullUpY)作为偏移量，这样就可以不对当前状态作区分
-        mPullableStateListener.getRefreshView().layout(0,
-                (int) (pullDownY + pullUpY) - mPullableStateListener.getRefreshView().getMeasuredHeight(),
-                mPullableStateListener.getRefreshView().getMeasuredWidth(), (int) (pullDownY + pullUpY));
+        mViewRefresh.layout(0,
+                (int) (pullDownY + pullUpY) - mViewRefresh.getMeasuredHeight(),
+                mViewRefresh.getMeasuredWidth(), (int) (pullDownY + pullUpY));
         mCenterView.layout(0, (int) (pullDownY + pullUpY),
                 mCenterView.getMeasuredWidth(), (int) (pullDownY + pullUpY)
                         + mCenterView.getMeasuredHeight());
-        mPullableStateListener.getLoadView().layout(0,
+        mViewLoadMore.layout(0,
                 (int) (pullDownY + pullUpY) + mCenterView.getMeasuredHeight(),
-                mPullableStateListener.getLoadView().getMeasuredWidth(),
+                mViewLoadMore.getMeasuredWidth(),
                 (int) (pullDownY + pullUpY) + mCenterView.getMeasuredHeight()
-                        + mPullableStateListener.getLoadView().getMeasuredHeight());
+                        + mViewLoadMore.getMeasuredHeight());
     }
 
 
@@ -489,7 +551,6 @@ public class PullLayout extends RelativeLayout {
     /**
      * 刷新加载回调接口
      *
-     * @author chenjing
      */
     public interface OnPullListener {
         /**
