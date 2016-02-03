@@ -11,6 +11,8 @@ import com.dianjineng.android.lib.pulllayout.PullLayout;
 import com.dianjineng.android.lib.pulllayout.R;
 import com.dianjineng.android.lib.pulllayout.enums.FinishState;
 
+import java.lang.ref.WeakReference;
+
 /**
  * @author wzq <wangzhiqiang951753@gmail.com>
  *         Date : 15-12-27-12-27 00:02

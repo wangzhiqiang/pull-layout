@@ -41,7 +41,7 @@ public class PullLayout extends RelativeLayout {
     // 回滚速度
     public float MOVE_SPEED = 8;
     // 第一次执行布局
-    private boolean isFirstLayout = false;
+    private boolean isFirstLayout = true;
     // 在刷新过程中滑动操作
     private boolean isTouch = false;
     // 手指滑动距离与下拉头的滑动距离比，中间会随正切函数变化
@@ -415,7 +415,7 @@ public class PullLayout extends RelativeLayout {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         Log.d("Test", "Test");
-        if (!isFirstLayout) {
+        if (isFirstLayout) {
             // 这里是第一次进来的时候做一些初始化
 //            mRefreshView = getChildAt(0);//
 
@@ -423,7 +423,7 @@ public class PullLayout extends RelativeLayout {
             mCenterView = getChildAt(1);
             mPullableStateListener.setLoadView(getChildAt(2));
 //            mLoadMoreView = getChildAt(2);//
-            isFirstLayout = true;
+            isFirstLayout = false;
             mPullableStateListener.initView(mContext);
 
             mRefreshDist = ((ViewGroup) mPullableStateListener.getRefreshView()).getChildAt(0).getMeasuredHeight();
