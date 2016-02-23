@@ -1,6 +1,7 @@
 package com.dianjineng.android.lib.pulllayout.pull;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -9,15 +10,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.dianjineng.android.lib.pulllayout.PullLayout;
 import com.dianjineng.android.lib.pulllayout.R;
-import com.dianjineng.android.lib.pulllayout.enums.FinishState;
-
-import java.lang.ref.WeakReference;
+import com.dianjineng.android.lib.pulllayout.enums.StateFinish;
 
 /**
  * @author wzq <wangzhiqiang951753@gmail.com>
  *         Date : 15-12-27-12-27 00:02
  */
 public class PullDefault implements PullLayout.PullStateListener {
+
+    private String TAG = this.getClass().getSimpleName();
+
 
     // 下拉箭头的转180°动画
     private RotateAnimation mRotateAnimation;
@@ -142,7 +144,13 @@ public class PullDefault implements PullLayout.PullStateListener {
     }
 
     @Override
-    public void refreshFinish(FinishState state) {
+    public void onPull(float y, int dist) {
+        Log.w(TAG,"Pull:"+y+"  Dist:"+dist+"  "+(Math.abs(y) >= dist ?"100":""+(y/dist*100))+"%");
+
+    }
+
+    @Override
+    public void refreshFinish(StateFinish state) {
 
         mImageRefreshLoading.clearAnimation();
         mImageRefreshLoading.setVisibility(View.GONE);
@@ -166,7 +174,7 @@ public class PullDefault implements PullLayout.PullStateListener {
     }
 
     @Override
-    public void loadFinish(FinishState state) {
+    public void loadFinish(StateFinish state) {
 
         mImageLoadLoading.clearAnimation();
         mImageLoadLoading.setVisibility(View.GONE);

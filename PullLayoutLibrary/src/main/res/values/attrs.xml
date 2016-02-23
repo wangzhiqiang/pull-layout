@@ -4,5 +4,7 @@
         <attr name="itemRefresh" format="reference"/>
         <attr name="itemLoadMore" format="reference"/>
         <attr name="dist" format="dimension"/>
+        <attr name="distRefresh" format="dimension"/>
+        <attr name="distLoadMore" format="dimension"/>
     </declare-styleable>
 </resources>

@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import butterknife.Bind;
@@ -13,7 +12,7 @@ import com.dianjineng.android.demo.adapter.RecyclerViewAdapter;
 import com.dianjineng.android.demo.interfaceview.IPullLayout;
 import com.dianjineng.android.demo.presenter.PullPresenter;
 import com.dianjineng.android.lib.pulllayout.PullLayout;
-import com.dianjineng.android.lib.pulllayout.enums.FinishState;
+import com.dianjineng.android.lib.pulllayout.enums.StateFinish;
 import com.dianjineng.android.lib.pulllayout.handler.views.PullRecyclerView;
 
 import java.util.List;
@@ -46,7 +45,7 @@ public class DemoRecyclerView extends ActivityBase implements PullLayout.OnPullL
         mRecyclerView.setAdapter(mAdapter);
 
         mPullLayout.setPullHandler(new PullRecyclerView(mRecyclerView));
-        mPullLayout.setOnRefreshListener(this);
+        mPullLayout.setOnPullListener(this);
 
     }
 
@@ -62,20 +61,20 @@ public class DemoRecyclerView extends ActivityBase implements PullLayout.OnPullL
 
     @Override
     public void refreshData(List<String> data) {
-        mPullLayout.refreshFinish(FinishState.SUCCESS);
+        mPullLayout.refreshFinish(StateFinish.SUCCESS);
         mAdapter.notifyDataSetChanged(data,true);
         mRecyclerView.getLayoutManager().scrollToPosition(0);
     }
 
     @Override
     public void loadMoreData(List<String> data) {
-        mPullLayout.loadFinish(FinishState.SUCCESS);
+        mPullLayout.loadFinish(StateFinish.SUCCESS);
         mAdapter.notifyDataSetChanged(data,false);
     }
 
     @Override
     public void onLoadError(String error) {
-        mPullLayout.refreshFinish(FinishState.FAILED);
-        mPullLayout.loadFinish(FinishState.FAILED);
+        mPullLayout.refreshFinish(StateFinish.FAILED);
+        mPullLayout.loadFinish(StateFinish.FAILED);
     }
 }
