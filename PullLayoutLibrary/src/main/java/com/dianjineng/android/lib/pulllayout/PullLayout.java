@@ -482,17 +482,9 @@ public class PullLayout extends FrameLayout {
             mPullableStateListener.initView(mContext);
         }
         // 改变子控件的布局，这里直接用(pullDownY + pullUpY)作为偏移量，这样就可以不对当前状态作区分
-        mViewRefresh.layout(0,
-                (int) (pullDownY + pullUpY) - mViewRefresh.getMeasuredHeight(),
-                mViewRefresh.getMeasuredWidth(), (int) (pullDownY + pullUpY));
-        mCenterView.layout(0, (int) (pullDownY + pullUpY),
-                mCenterView.getMeasuredWidth(), (int) (pullDownY + pullUpY)
-                        + mCenterView.getMeasuredHeight());
-        mViewLoadMore.layout(0,
-                (int) (pullDownY + pullUpY) + mCenterView.getMeasuredHeight(),
-                mViewLoadMore.getMeasuredWidth(),
-                (int) (pullDownY + pullUpY) + mCenterView.getMeasuredHeight()
-                        + mViewLoadMore.getMeasuredHeight());
+        mViewRefresh.layout(0,(int) (pullDownY + pullUpY) - mViewRefresh.getMeasuredHeight(), mViewRefresh.getMeasuredWidth(), (int) (pullDownY + pullUpY));
+        mCenterView.layout(0, (int) (pullDownY + pullUpY),mCenterView.getMeasuredWidth(), (int) (pullDownY + pullUpY) + mCenterView.getMeasuredHeight());
+        mViewLoadMore.layout(0, (int) (pullDownY + pullUpY) + mCenterView.getMeasuredHeight(), mViewLoadMore.getMeasuredWidth(), (int) (pullDownY + pullUpY) + mCenterView.getMeasuredHeight() + mViewLoadMore.getMeasuredHeight());
     }
 
 
