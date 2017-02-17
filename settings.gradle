@@ -1,1 +1,1 @@
-include ':AppDemo', ':PullLayoutLibrary'
+include ':PullLayoutLibrary'
