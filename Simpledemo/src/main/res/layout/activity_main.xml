@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="#ddd"
+    android:layout_height="match_parent"
+    tools:context="cn.wangzq.pull.demo.MainActivity">
+
+
+    <cn.wangzq.pull.view.PullRefreshLayout
+        android:padding="20dp"
+        android:background="#f0f"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:background="#ff0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="SSSSSSSS" />
+    </cn.wangzq.pull.view.PullRefreshLayout>
+
+</RelativeLayout>
